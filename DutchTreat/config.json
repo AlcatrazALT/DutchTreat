@@ -1,5 +1,11 @@
 {
   "ConnectionStrings": {
     "DutchConnectionString": "server=(localdb)\\ProjectsV13;Database=DutchThreatDb;Integrated Security=true;MultipleActiveResultSets=true;"
+  },
+  "Loggin": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft":  "Warning"
+    }
   }
 }
