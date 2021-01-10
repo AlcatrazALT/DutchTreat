@@ -26,6 +26,9 @@ namespace DutchTreat
             {
                 options.UseSqlServer(config.GetConnectionString("DutchConnectionString"));
             });
+
+            services.AddTransient<DutchSeeder>();
+
             services.AddTransient<IMailService, NullMailService>();
             services.AddControllersWithViews();
         }
