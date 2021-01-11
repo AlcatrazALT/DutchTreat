@@ -18,6 +18,11 @@ namespace DutchTreat.Data
             this.logger = logger;
         }
 
+        public void AddOrder(Order model)
+        {
+            context.Add(model);
+        }
+
         public IEnumerable<Order> GetAllOrders()
         {
             return context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).ToList();
