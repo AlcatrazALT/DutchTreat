@@ -1,9 +1,16 @@
-﻿using DutchTreat.Data.Entities;
+﻿using DutchTreat.Common;
+using DutchTreat.Data.Entities;
 using DutchTreat.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DutchTreat.Controllers
@@ -12,11 +19,15 @@ namespace DutchTreat.Controllers
     {
         private readonly ILogger<AccountController> logger;
         private readonly SignInManager<StoreUser> signInManager;
+        private readonly UserManager<StoreUser> userManager;
+        private readonly TokensOptions tokensOptions;
 
-        public AccountController(ILogger<AccountController> logger, SignInManager<StoreUser> signInManager)
+        public AccountController(ILogger<AccountController> logger, SignInManager<StoreUser> signInManager, UserManager<StoreUser> userManager, IOptions<TokensOptions> tokensOptions)
         {
             this.logger = logger;
             this.signInManager = signInManager;
+            this.userManager = userManager;
+            this.tokensOptions = tokensOptions.Value;
         }
 
         public IActionResult Login()
@@ -58,6 +69,51 @@ namespace DutchTreat.Controllers
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "App");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateToken([FromBody] LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByNameAsync(model.UserName);
+
+                if (user != null)
+                {
+                    var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+                    if (result.Succeeded)
+                    {
+                        //Create the jwt token
+                        var claims = new[]
+                        {
+                            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                        };
+
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokensOptions.Key));
+                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                        var token = new JwtSecurityToken(
+                            tokensOptions.Issuer,
+                            tokensOptions.Audience,
+                            claims,
+                            expires: DateTime.UtcNow.AddMinutes(30),
+                            signingCredentials: creds);
+
+                        var results = new
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(token),
+                            expiration = token.ValidTo
+                        };
+
+                        return Created("", results);
+                    }
+                }
+            }
+
+            return BadRequest();
         }
     }
 }
