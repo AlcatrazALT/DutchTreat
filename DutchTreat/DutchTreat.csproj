@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientCode\**" />
+    <Content Remove="ClientCode\**" />
+    <EmbeddedResource Remove="ClientCode\**" />
+    <None Remove="ClientCode\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\js\index.js" />
   </ItemGroup>
 
