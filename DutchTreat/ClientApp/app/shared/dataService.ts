@@ -1,4 +1,4 @@
-﻿import { HttpClient } from "@angular/common/http"
+﻿import { HttpClient, HttpHeaders } from "@angular/common/http"
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
 import { map } from "rxjs/operators"
@@ -20,12 +20,26 @@ export class DataService {
         return this.token.length == 0 || this.tokenExpiration > new Date()
     }
 
-    login(creds): Observable<boolean> {
+    public login(creds): Observable<boolean> {
         return this.http
             .post("/account/createtoken", creds)
             .pipe(map((data: any) => {
                 this.token = data.token
                 this.tokenExpiration = data.expiration
+                return true
+            }))
+    }
+
+    public checkout() {
+        if (!this.order.orderNumber) {
+            this.order.orderNumber = this.order.orderDate.getFullYear().toString() + this.order.orderDate.getTime().toString()
+        }
+        return this.http
+            .post("/api/orders", this.order, {
+                headers: new HttpHeaders({ "Authorization": "Bearer " + this.token })
+            })
+            .pipe(map(response => {
+                this.order = new Order()
                 return true
             }))
     }

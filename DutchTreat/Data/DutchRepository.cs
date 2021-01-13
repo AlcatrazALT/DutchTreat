@@ -20,6 +20,11 @@ namespace DutchTreat.Data
 
         public void AddOrder(Order model)
         {
+            foreach (var item in model.Items)
+            {
+                item.Product = context.Products.Find(item.Product.Id);
+            }
+
             context.Add(model);
         }
 
