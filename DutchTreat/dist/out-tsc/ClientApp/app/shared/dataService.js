@@ -1,7 +1,7 @@
 import { __decorate } from "tslib";
 import { Injectable } from '@angular/core';
 import { map } from "rxjs/operators";
-import { Order } from './order';
+import { Order, OrderItem } from './order';
 let DataService = class DataService {
     constructor(http) {
         this.http = http;
@@ -21,6 +21,7 @@ let DataService = class DataService {
             item.quantity++;
         }
         else {
+            item = new OrderItem();
             item.productId = newProduct.id;
             item.productArtist = newProduct.artist;
             item.productArtId = newProduct.artId;
@@ -29,8 +30,8 @@ let DataService = class DataService {
             item.productTitle = newProduct.title;
             item.unitPrice = newProduct.price;
             item.quantity = 1;
+            this.order.items.push(item);
         }
-        this.order.items.push(item);
     }
 };
 DataService = __decorate([
