@@ -9,9 +9,12 @@ import { Cart } from './shop/cart.component';
 import { RouterModule } from '@angular/router';
 import { Shop } from './shop/shop.component';
 import { Checkout } from './checkout/checkout.component';
+import { Login } from './login/login.component';
+import { FormsModule } from '@angular/forms';
 let routes = [
     { path: "", component: Shop },
-    { path: "checkout", component: Checkout }
+    { path: "checkout", component: Checkout },
+    { path: "login", component: Login }
 ];
 let AppModule = class AppModule {
 };
@@ -22,7 +25,8 @@ AppModule = __decorate([
             ProductList,
             Cart,
             Shop,
-            Checkout
+            Checkout,
+            Login
         ],
         imports: [
             BrowserModule,
@@ -30,7 +34,8 @@ AppModule = __decorate([
             RouterModule.forRoot(routes, {
                 useHash: true,
                 enableTracing: false
-            })
+            }),
+            FormsModule
         ],
         providers: [
             DataService

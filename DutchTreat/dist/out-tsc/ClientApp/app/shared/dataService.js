@@ -5,8 +5,21 @@ import { Order, OrderItem } from './order';
 let DataService = class DataService {
     constructor(http) {
         this.http = http;
+        this.token = "";
         this.products = [];
         this.order = new Order();
+    }
+    get loginRequired() {
+        return this.token.length == 0 || this.tokenExpiration > new Date();
+    }
+    login(creds) {
+        return this.http
+            .post("/account/createtoken", creds)
+            .pipe(map((data) => {
+            this.token = data.token;
+            this.tokenExpiration = data.expiration;
+            return true;
+        }));
     }
     loadProducts() {
         return this.http.get("/api/products")
